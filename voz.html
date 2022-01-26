@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lector de noticias</title>
+    <style>
+        .buttons {
+            margin-top: 25px;
+        }
+
+        button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            height: 48px;
+            outline: none;
+            padding: 0;
+            width: 48px;
+        }
+        #leerNota {
+            background-image: url(https://rpsthecoder.github.io/js-speech-synthesis/play.svg);
+        }
+
+        #reiniciarNota {
+            background-image: url(https://rpsthecoder.github.io/js-speech-synthesis/stop.svg);
+        }
+    </style>
+</head>
+
+<body>
+    <button id="leerNota"></button>
+    <button id="reiniciarNota"></button>
+    <script>
+        var speech = new SpeechSynthesisUtterance("");
+        var contentToSpeak = decodeURI(location.search.split('texto=')[1]);
+        speech.text = contentToSpeak;
+        speech.volume = 0.8;
+        speech.lang = 'es-es';
+
+        var isFirstTime = true;
+
+        var audioPlayer = window.speechSynthesis;
+        let reproduciendo = false;
+        const btn = document.getElementById("leerNota");
+        btn.addEventListener('click', function () {
+            //si está reproduciendo, lo detiene, sino lo reproduce.
+            if (isFirstTime) {
+                speakArticle();
+                reproduciendo = true;
+                isFirstTime = false;
+                console.log("start");
+                btn.style.backgroundImage = "url(https://rpsthecoder.github.io/js-speech-synthesis/pause.svg)";
+            } else if (reproduciendo) {
+                audioPlayer.pause();
+                reproduciendo = false;
+                console.log("pause");
+                btn.style.backgroundImage = "url(https://rpsthecoder.github.io/js-speech-synthesis/play.svg)";
+
+            } else {
+                audioPlayer.resume();
+                console.log("resume");
+                reproduciendo = true;
+                btn.style.backgroundImage = "url(https://rpsthecoder.github.io/js-speech-synthesis/pause.svg)";
+            }
+            //se le cambia el texto al botón.
+            //btn.innerText = reproduciendo? "Parar reprodución": "Escuchar nota";
+        });
+        const btnReiniciar = document.getElementById("reiniciarNota");
+        btnReiniciar.addEventListener('click', function () {
+            speechSynthesis.cancel(speech);
+            isFirstTime = true;
+            btn.style.backgroundImage = "url(https://rpsthecoder.github.io/js-speech-synthesis/play.svg)";
+        })
+
+        function speakArticle() {
+            speechSynthesis.cancel(speech);
+            speechSynthesis.speak(speech);
+        }
+        speech.addEventListener('end', function (event) {
+            //btn.innerText="Escuchar nota"
+        });
+        
+        //cancelar audio al cambiar de web
+        window.onbeforeunload = cancelarAudio;
+
+        function cancelarAudio(){
+         speechSynthesis.cancel(speech);
+        }
+    </script>
+
+
+</body>
+
+</html>
